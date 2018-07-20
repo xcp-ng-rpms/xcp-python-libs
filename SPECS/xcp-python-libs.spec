@@ -1,26 +1,28 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
-Summary: Common XenServer Python classes
+%define xs_version 2.0.3
+
+Summary: Common XCP-ng Python classes
 Name: xcp-python-libs
-Version: 2.0.3
-Release: 2
-Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/%{name}/archive?at=v%{version}&format=tar.gz&prefix=%{name}-%{version}#/%{name}-%{version}.tar.gz
+Version: %{xs_version}.xcp
+Release: 1
+Source0: %{name}-%{xs_version}.tar.gz
 License: GPL
 
 Group: Applications/System
 BuildArch: noarch
 
 BuildRequires: python-devel python-setuptools
-BuildRequires: branding-xenserver
+BuildRequires: branding-xcp-ng
 
 Provides: xcp-python-libs-xenserver = %{version}
 Conflicts: xcp-python-libs-incloudsphere
 
 %description
-Common XenServer Python classes.
+Common XCP-ng Python classes.
 
 %prep
-%autosetup -p1
+%autosetup -p1 -n %{name}-%{xs_version}
 
 %build
 %{_usrsrc}/branding/branding-compile.py --format=python > xcp/branding.py
