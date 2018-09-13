@@ -7,7 +7,6 @@ Name: xcp-python-libs
 Version: %{xs_version}.xcp
 Release: 1
 Source0: %{name}-%{xs_version}.tar.gz
-Patch0: xcp-python-libs-2.0.3-fix-boot-entry-name.XCP-ng.patch
 License: GPL
 
 Group: Applications/System
