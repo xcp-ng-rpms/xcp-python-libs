@@ -1,37 +1,26 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
-%define xs_version 2.0.3
-
 Summary: Common XCP-ng Python classes
 Name: xcp-python-libs
-Version: %{xs_version}.xcp
-Release: 1
-Source0: %{name}-%{xs_version}.tar.gz
+Version: 2.0.5
+Release: 1.1.xcp
+Source0: %{name}-%{version}.tar.gz
 License: GPL
 
 Group: Applications/System
 BuildArch: noarch
 
 BuildRequires: python-devel python-setuptools
-BuildRequires: branding-xcp-ng
 
-Provides: xcp-python-libs-xenserver = %{version}
-Conflicts: xcp-python-libs-incloudsphere
+Obsoletes: xcp-python-libs-incloudsphere
 
 %description
 Common XCP-ng Python classes.
 
 %prep
-%autosetup -p1 -n %{name}-%{xs_version}
+%autosetup -p1
 
 %build
-%{_usrsrc}/branding/branding-compile.py --format=python > xcp/branding.py
-cat >>xcp/branding.py <<EOF
-try:
-    from oem_version import *
-except ImportError:
-    pass
-EOF
 %{__python} setup.py build
 
 %install
@@ -47,6 +36,19 @@ EOF
 
 
 %changelog
+* Tue Jul 17 2018 Simon Rowe <simon.rowe@citrix.com> - 2.0.5-1
+- CP-28832: Enable the use of an index after PCI bus location
+
+* Mon Jun 25 2018 Simon Rowe <simon.rowe@citrix.com> - 2.0.4-1
+- PAR-244 Use branding in xen-cmdline
+
+* Wed Jun 13 2018 Tim Smith <tim.smith@citrix.com> - 2.0.3-4
+- Removed Provides for xcp-python-libs-incloudsphere; Obsoletes should be
+  sufficient
+
+* Mon Apr 30 2018 Simon <simon.rowe@citrix.com> - 2.0.3-3
+- Removed branding.py
+
 * Wed Jan 01 2018 Owen Smith <owen.smith@citrix.com> - 2.0.3-2
 - CA-281789: Bump release, so that Jura will include an updated package
 
