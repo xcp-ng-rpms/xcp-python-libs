@@ -3,7 +3,7 @@
 Summary: Common XCP-ng Python classes
 Name: xcp-python-libs
 Version: 2.0.5
-Release: 1.1.xcp
+Release: 1.1%{dist}
 Source0: %{name}-%{version}.tar.gz
 License: GPL
 
