@@ -2,9 +2,14 @@
 
 Summary: Common XCP-ng Python classes
 Name: xcp-python-libs
-Version: 2.0.5
-Release: 1.1%{dist}
-Source0: %{name}-%{version}.tar.gz
+Version: 2.3.0
+Release: 1%{?dist}
+
+Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.0&format=tar.gz&prefix=xcp-python-libs-2.3.0#/xcp-python-libs-2.3.0.tar.gz
+
+
+Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.0&format=tar.gz&prefix=xcp-python-libs-2.3.0#/xcp-python-libs-2.3.0.tar.gz) = 23c8e47b4b6d8fb461abc043e1291237ab5ac378
+
 License: GPL
 
 Group: Applications/System
@@ -36,6 +41,24 @@ Common XCP-ng Python classes.
 
 
 %changelog
+* Wed Feb 06 2019 jenniferhe <jennifer.herbert@citrix.com> - 2.3.0-1
+- add errno.IO to errors passed to host-upgrade
+- CP-29627: Increase the amount of memory assigned to dom0
+- CP-29836: Expose the product version of a Yum repository
+- CP-30501: Add API to get dom0 default memory by version
+- CP-30557: Make default_memory base its recomendation based on platform version
+
+* Tue Jan 15 2019 rossla <ross.lagerwall@citrix.com> - 2.2.1-1
+- CP-23016 Update API to store last error code
+- Set lastError on IOError, OSError & Exception, then return false
+
+* Fri Oct 12 2018 Simon Rowe <simon.rowe@citrix.com> - 2.1.1-1
+- CA-299167: fix creating Version from string
+
+* Thu Aug 30 2018 Simon Rowe <simon.rowe@citrix.com> - 2.1.0-1
+- Take a copy of the boilerplate
+- CP-21760: add one-shot boot method
+
 * Tue Jul 17 2018 Simon Rowe <simon.rowe@citrix.com> - 2.0.5-1
 - CP-28832: Enable the use of an index after PCI bus location
 
