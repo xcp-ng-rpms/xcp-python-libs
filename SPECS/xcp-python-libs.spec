@@ -2,13 +2,13 @@
 
 Summary: Common XenServer Python classes
 Name: xcp-python-libs
-Version: 2.3.0
+Version: 2.3.2
 Release: 1
 
-Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.0&format=tar.gz&prefix=xcp-python-libs-2.3.0#/xcp-python-libs-2.3.0.tar.gz
+Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.2&format=tar.gz&prefix=xcp-python-libs-2.3.2#/xcp-python-libs-2.3.2.tar.gz
 
 
-Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.0&format=tar.gz&prefix=xcp-python-libs-2.3.0#/xcp-python-libs-2.3.0.tar.gz) = 23c8e47b4b6d8fb461abc043e1291237ab5ac378
+Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.2&format=tar.gz&prefix=xcp-python-libs-2.3.2#/xcp-python-libs-2.3.2.tar.gz) = c5f70292986dae0a908aea5f66165ec045c87679
 
 License: GPL
 
@@ -41,6 +41,13 @@ Common XenServer Python classes.
 
 
 %changelog
+* Thu Oct 31 2019 Ross Lagerwall <ross.lagerwall@citrix.com> - 2.3.2-1
+- CA-329771: Fix HTTP access with username but no password
+
+* Thu Oct 24 2019 Ross Lagerwall <ross.lagerwall@citrix.com> - 2.3.1-1
+- Remove compat_urlsplit()
+- CA-329412: Avoid potential leak of passwords
+
 * Wed Feb 06 2019 jenniferhe <jennifer.herbert@citrix.com> - 2.3.0-1
 - add errno.IO to errors passed to host-upgrade
 - CP-29627: Increase the amount of memory assigned to dom0
