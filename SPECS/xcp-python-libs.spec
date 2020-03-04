@@ -3,10 +3,13 @@
 Summary: Common XCP-ng Python classes
 Name: xcp-python-libs
 Version: 2.3.2
-Release: 1%{?dist}
+Release: 1.1%{?dist}
 
 Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.2&format=tar.gz&prefix=xcp-python-libs-2.3.2#/xcp-python-libs-2.3.2.tar.gz
 
+# XCP-ng
+# This repo is the upstream for updategrub.py, for now
+Source1: updategrub.py
 
 Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.2&format=tar.gz&prefix=xcp-python-libs-2.3.2#/xcp-python-libs-2.3.2.tar.gz) = c5f70292986dae0a908aea5f66165ec045c87679
 
@@ -31,6 +34,7 @@ Common XCP-ng Python classes.
 %install
 %{__rm} -rf %{buildroot}
 %{__python} setup.py install -O2 --skip-build --root %{buildroot}
+install -m 0775 %{SOURCE1} %{buildroot}%{python_sitelib}/xcp/updategrub.py
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -39,8 +43,10 @@ Common XCP-ng Python classes.
 %defattr(-,root,root)
 %{python_sitelib}
 
-
 %changelog
+* Wed Mar 04 2020 Samuel Verschelde <stormi-xcp@ylix.fr> - 2.3.2-1.1
+- Add updategrub.py
+
 * Thu Oct 31 2019 Ross Lagerwall <ross.lagerwall@citrix.com> - 2.3.2-1
 - CA-329771: Fix HTTP access with username but no password
 
