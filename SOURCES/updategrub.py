@@ -75,20 +75,22 @@ def add_kernel(arg, is_default, grubFile):
         if ALT in b.menu.get(key).kernel:
 	    if is_default == True:
                 b.default = key
-		break
+		b.writeGrub2(grubFile)
+	    return True
 
-# If ALT is not present
-    if "label" not in b.default: 
-	new_entry = bootloader.MenuEntry(
-        b.menu.get(key).hypervisor, 
-	b.menu.get(key).hypervisor_args, 
-	"/boot/vmlinuz-" + ALT + "-xen", 
-	b.menu.get(key).kernel_args, 
-	"/boot/initrd-" + ALT + "-xen.img", 
-	b.menu.get(key).title + " kernel-alt " + ALT
-	)
-	b.append("alt", new_entry)
-	key = "alt"
+# If ALT is not present, use default kernel as template
+    key = 'xe'
+    new_entry = bootloader.MenuEntry(
+    b.menu.get(key).hypervisor, 
+    b.menu.get(key).hypervisor_args, 
+    "/boot/vmlinuz-" + ALT + "-xen", 
+    b.menu.get(key).kernel_args, 
+    "/boot/initrd-" + ALT + "-xen.img", 
+    b.menu.get(key).title + " kernel-alt " + ALT,
+    root = b.menu.get(key).root
+    )
+    b.append("alt", new_entry)
+    key = "alt"
 
     if is_default == True:
 	b.default = key
