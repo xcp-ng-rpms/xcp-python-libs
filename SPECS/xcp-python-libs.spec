@@ -3,7 +3,7 @@
 Summary: Common XCP-ng Python classes
 Name: xcp-python-libs
 Version: 2.3.2
-Release: 1.2%{?dist}
+Release: 1.3%{?dist}
 
 Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.2&format=tar.gz&prefix=xcp-python-libs-2.3.2#/xcp-python-libs-2.3.2.tar.gz
 
@@ -44,6 +44,9 @@ install -m 0775 %{SOURCE1} %{buildroot}%{python_sitelib}/xcp/updategrub.py
 %{python_sitelib}
 
 %changelog
+* Mon Mar 16 2020 Rushikesh Jadhav <rushikesh7@gmail.com> - 2.3.2-1.3
+- Update updategrub.py with latest fixes
+
 * Thu Mar 05 2020 Samuel Verschelde <stormi-xcp@ylix.fr> - 2.3.2-1.2
 - Update updategrub.py with latest fixes
 

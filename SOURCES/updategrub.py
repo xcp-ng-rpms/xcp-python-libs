@@ -15,25 +15,34 @@
 # You should have received a copy of the GNU General Public License
 # along with this script.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, getopt, os
+import sys, os, argparse
 from xcp import bootloader
 
 def main(argv):
-    is_default = False
     grubFile = str(grubPath())
     try:
-        opts, args = getopt.getopt(argv,'ad:rd:',["add=","remove=","default"])
-    except getopt.GetoptError:
-	print "Help: Use [--default/-d] --add/-a alt-version or --remove/-r alt-version"
+        parser = argparse.ArgumentParser(description='UpdateGrub script to \
+                                                      handle grub kernel-alt entries')
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument('--add', '-a')
+        group.add_argument('--remove', '-r')
+        group.add_argument('--set_default', '-d')
+        results = parser.parse_args()
+    except Exception as e:
+        print >> sys.stderr, e
         sys.exit(1)
-    for opt, arg in opts:
-        if opt in ('-d', '--default'):
-	    is_default = True
-    for opt, arg in opts:
-        if opt in ('-a', '--add'):
-            add_kernel(arg, is_default, grubFile)
-        elif opt in ('-r', '--remove'):
-            remove_kernel(arg, grubFile)
+    if results.add:
+        if not add_kernel(results.add, grubFile):
+            print >> sys.stderr, "alt-kernel " + results.add + " is already added."
+            sys.exit(2)
+    elif results.remove: 
+        if not remove_kernel(results.remove, grubFile):
+            print >> sys.stderr, "No grub entry found for kernel " + results.remove
+            sys.exit(3)
+    elif results.set_default:
+        if not set_kernel(results.set_default, grubFile):
+            print >> sys.stderr, "No grub entry found for kernel " + results.set_default
+            sys.exit(4)
 
 #
 # Function Name : grubPath
@@ -58,27 +67,22 @@ def grubPath(root = '/'):
 #
 # Function Name : add_kernel
 # Params : arg is "alt" kernel version e.g. 4.19.102
-# Params : is_default is to set the new kernel as default to boot
 # Params : grubFile is the file path to write grub configuration
 # Description : The function is used to add new entry by copying "XCP-ng" entry
-# into "XCP-ng alt" such that the alt kernel is selected.
+# into "XCP-ng alt" such that the alt kernel can be selected.
 #
 
-def add_kernel(arg, is_default, grubFile):
+def add_kernel(arg, grubFile):
     b = bootloader.Bootloader("grub2", grubFile)
     b = b.loadExisting()
     ALT = arg
-    item = 'xe'
 
-# If ALT is already present, mark it for default
+    # If ALT is already present, return
     for key, item in b.menu.items():
         if ALT in b.menu.get(key).kernel:
-	    if is_default == True:
-                b.default = key
-		b.writeGrub2(grubFile)
-	    return True
+            return False
 
-# If ALT is not present, use default kernel as template
+    # If ALT is not present, use default kernel as template
     key = 'xe'
     new_entry = bootloader.MenuEntry(
     b.menu.get(key).hypervisor, 
@@ -90,13 +94,8 @@ def add_kernel(arg, is_default, grubFile):
     root = b.menu.get(key).root
     )
     b.append("alt", new_entry)
-    key = "alt"
-
-    if is_default == True:
-	b.default = key
-    else:
-	b.default = 'xe'
     b.writeGrub2(grubFile)
+    print "Adding kernel-alt " + arg + " as grub entry #" + str(len(b.menu)-1)
     return True
 
 #
@@ -111,14 +110,35 @@ def remove_kernel(arg, grubFile):
     b = bootloader.Bootloader("grub2", grubFile)
     b = b.loadExisting()
     ALT = arg
-    item = 'xe'
     for key, item in b.menu.items():
         if ALT in b.menu.get(key).kernel:
-		b.remove(key)
+            b.remove(key)
+            b.default = 'xe'
+            b.writeGrub2(grubFile)
+            print "Removing kernel-alt " + arg + " from grub entries and " \
+                  + "setting back main kernel as default grub entry"
+            return True
+    return False
 
-    b.default = 'xe'
-    b.writeGrub2(grubFile)
-    return True
+#
+# Function Name : set_kernel
+# Params : arg is "alt" kernel version e.g. 4.19.102
+# Params : grubFile is the file path to write grub configuration
+# Description : The function is used to set alt kernel entry as next default.
+#
+
+def set_kernel(arg, grubFile):
+    b = bootloader.Bootloader("grub2", grubFile)
+    b = b.loadExisting()
+    ALT = arg
+    for key, item in b.menu.items():
+        if ALT in b.menu.get(key).kernel:
+            b.default = key
+            b.writeGrub2(grubFile)
+            print "Setting kernel-alt " + arg + " as default grub entry"
+            return True
+
+    return False
 
 if __name__ == "__main__":
    main(sys.argv[1:])
