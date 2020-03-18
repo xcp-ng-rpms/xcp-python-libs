@@ -15,110 +15,179 @@
 # You should have received a copy of the GNU General Public License
 # along with this script.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, getopt, os
+from __future__ import print_function
+import sys, os, argparse
 from xcp import bootloader
 
-def main(argv):
-    is_default = False
-    grubFile = str(grubPath())
-    try:
-        opts, args = getopt.getopt(argv,'ad:rd:',["add=","remove=","default"])
-    except getopt.GetoptError:
-	print "Help: Use [--default/-d] --add/-a alt-version or --remove/-r alt-version"
-        sys.exit(1)
-    for opt, arg in opts:
-        if opt in ('-d', '--default'):
-	    is_default = True
-    for opt, arg in opts:
-        if opt in ('-a', '--add'):
-            add_kernel(arg, is_default, grubFile)
-        elif opt in ('-r', '--remove'):
-            remove_kernel(arg, grubFile)
+def grub_path(root = '/'):
+    """
+    Find grub file path.
 
-#
-# Function Name : grubPath
-# Params : root = '/'
-# Description : The function is used to find the grub file path.
-#
+    Keyword arguments:
+    root -- root path
+    """
+    possible_paths = [
+        "boot/efi/EFI/xenserver/grub.cfg",
+        "boot/grub/grub.cfg",
+        "boot/grub2/grub.cfg"
+    ]
+    for rel_filepath in possible_paths:
+        filepath = os.path.join(root, rel_filepath)
+        if os.path.exists(filepath):
+            return filepath
 
-def grubPath(root = '/'):
-    if os.path.exists(os.path.join(root, "boot/efi/EFI/xenserver/grub.cfg")):
-        return (os.path.join(root, "boot/efi/EFI/xenserver/grub.cfg"))
-    elif os.path.exists(os.path.join(root, "boot/grub/grub.cfg")):
-        return (os.path.join(root, "boot/grub/grub.cfg"))
-    elif os.path.exists(os.path.join(root, "boot/grub2/grub.cfg")):
-        return (os.path.join(root, "boot/grub2/grub.cfg"))
-    elif os.path.exists(os.path.join(root, "boot/extlinux.conf")):
-        return cls.readExtLinux(os.path.join(root, "boot/extlinux.conf"))
-    elif os.path.exists(os.path.join(root, "boot/grub/menu.lst")):
-        return (os.path.join(root, "boot/grub/menu.lst"))
+    raise RuntimeError("No existing bootloader configuration found")
+
+def title_from_flavour_version(flavour, version):
+    if flavour == 'kernel':
+        return "XCP-ng"
     else:
-        raise RuntimeError, "No existing bootloader configuration found"
+        return "XCP-ng %s %s" % (flavour, version)
 
-#
-# Function Name : add_kernel
-# Params : arg is "alt" kernel version e.g. 4.19.102
-# Params : is_default is to set the new kernel as default to boot
-# Params : grubFile is the file path to write grub configuration
-# Description : The function is used to add new entry by copying "XCP-ng" entry
-# into "XCP-ng alt" such that the alt kernel is selected.
-#
+def add(grub_file, flavour, version, ignore_existing = False):
+    """
+    Add new grub entry by copying "XCP-ng" entry into "XCP-ng {flavour}"
+    such that the additional kernel can be selected.
 
-def add_kernel(arg, is_default, grubFile):
-    b = bootloader.Bootloader("grub2", grubFile)
+    Keyword arguments:
+    grub_file -- the file path to write grub configuration
+    flavour -- one of XCP-ng's kernel flavours: kernel-alt...
+               Value `kernel` is forbidden for this function.
+    version -- the kernel version e.g. 4.19.102
+    ignore_existing -- if True and no kernel is found for the given parameters, stop silently
+    """
+    if flavour == 'kernel':
+        print("'%s' is a forbidden value for this action" % flavour, file=sys.stderr)
+        sys.exit(1)
+
+    vmlinuz = '/boot/vmlinuz-%s' % version
+    if not os.path.exists(vmlinuz):
+        print("kernel %s doesn't exist." % vmlinuz, file=sys.stderr)
+        sys.exit(1)
+
+    b = bootloader.Bootloader("grub2", grub_file)
     b = b.loadExisting()
-    ALT = arg
-    item = 'xe'
 
-# If ALT is already present, mark it for default
-    for key, item in b.menu.items():
-        if ALT in b.menu.get(key).kernel:
-	    if is_default == True:
-                b.default = key
-		b.writeGrub2(grubFile)
-	    return True
+    title = title_from_flavour_version(flavour, version)
+    # If the entry is already present, stop
+    for key in b.menu:
+        if b.menu.get(key).title == title:
+            if ignore_existing:
+                return
+            else:
+                print("%s is already present in grub configuration." % title,
+                      file=sys.stderr)
+                sys.exit(1)
 
-# If ALT is not present, use default kernel as template
+    # If version is not present, use default kernel as template
     key = 'xe'
     new_entry = bootloader.MenuEntry(
-    b.menu.get(key).hypervisor, 
-    b.menu.get(key).hypervisor_args, 
-    "/boot/vmlinuz-" + ALT + "-xen", 
-    b.menu.get(key).kernel_args, 
-    "/boot/initrd-" + ALT + "-xen.img", 
-    b.menu.get(key).title + " kernel-alt " + ALT,
-    root = b.menu.get(key).root
+        b.menu.get(key).hypervisor,
+        b.menu.get(key).hypervisor_args,
+        "/boot/vmlinuz-" + version + "-xen",
+        b.menu.get(key).kernel_args,
+        "/boot/initrd-" + version + "-xen.img",
+        title,
+        root = b.menu.get(key).root
     )
-    b.append("alt", new_entry)
-    key = "alt"
+    b.append("new", new_entry)
+    print("Adding '" + title + "' as grub entry #" + str(len(b.menu)-1))
+    b.writeGrub2(grub_file)
 
-    if is_default == True:
-	b.default = key
-    else:
-	b.default = 'xe'
-    b.writeGrub2(grubFile)
-    return True
 
-#
-# Function Name : remove_kernel
-# Params : arg is "alt" kernel version e.g. 4.19.102
-# Params : grubFile is the file path to write grub configuration
-# Description : The function is used to remove alt kernel entry
-# and set "XCP-ng" as next default.
-#
+def remove(grub_file, flavour, version, ignore_missing = False):
+    """
+    Remove the grub boot entry related to the kernel flavour and version
 
-def remove_kernel(arg, grubFile):
-    b = bootloader.Bootloader("grub2", grubFile)
+    Keyword arguments:
+    grub_file -- the file path to write grub configuration
+    flavour -- one of XCP-ng's kernel flavours: kernel-alt...
+               Value 'kernel' is forbidden for this function.
+    version -- the kernel version e.g. 4.19.102.
+    ignore_missing -- if True and no grub entry is found for the given parameters, stop silently
+    """
+    if flavour == 'kernel':
+        print("'%s' is a forbidden value for this action" % flavour, file=sys.stderr)
+        sys.exit(1)
+
+    b = bootloader.Bootloader("grub2", grub_file)
     b = b.loadExisting()
-    ALT = arg
-    item = 'xe'
-    for key, item in b.menu.items():
-        if ALT in b.menu.get(key).kernel:
-		b.remove(key)
 
-    b.default = 'xe'
-    b.writeGrub2(grubFile)
-    return True
+    title = title_from_flavour_version(flavour, version)
+    for key in b.menu:
+        if b.menu.get(key).title == title:
+            if b.default == key:
+                print("Setting back main kernel as default grub entry.")
+                b.default = 'xe'
+            print("Removing '" + title + "' from grub entries")
+            b.remove(key)
+            b.writeGrub2(grub_file)
+            return
+
+    if not ignore_missing:
+        print("Entry '%s' not found in grub configuration, can't remove it." % title,
+              file=sys.stderr)
+        sys.exit(1)
+
+#
+# Function Name : set_default
+# Params : arg is "alt" kernel version e.g. 4.19.102
+# Params : grub_file is the file path to write grub configuration
+# Description : The function is used to set alt kernel entry as next default.
+#
+
+def set_default(grub_file, flavour, version):
+    """
+    Set an existing grub boot entry as default
+
+    Keyword arguments:
+    grub_file -- the file path to write grub configuration
+    flavour -- one of XCP-ng's kernel flavours: kernel, kernel-alt...
+    version -- the kernel version e.g. 4.19.102. Value ignored if flavour is 'kernel'.
+    """
+    b = bootloader.Bootloader("grub2", grub_file)
+    b = b.loadExisting()
+
+    title = title_from_flavour_version(flavour, version)
+    for key in b.menu:
+        if b.menu.get(key).title == title:
+            if b.default == key:
+                print("'%s' is already the default." % title)
+                return
+            print("Setting '%s' as default grub entry." % title)
+            b.default = key
+            b.writeGrub2(grub_file)
+            return
+
+    print("Entry '%s' not found in grub configuration, can't set it as default." % title,
+          file=sys.stderr)
+    sys.exit(1)
+
+
+def main(argv):
+    grub_file = str(grub_path())
+    parser = argparse.ArgumentParser(description='Update grub menu entries for XCP-ng\'s additional kernels')
+    actions = ['add', 'remove', 'set-default']
+    parser.add_argument('action', choices=actions,
+                        help="An action among: %s." % ', '.join(actions))
+    flavours = ['kernel', 'kernel-alt']
+    parser.add_argument('flavour', choices=flavours,
+                        help="Kernel flavour among: %s." % ', '.join(flavours))
+    parser.add_argument('version',
+                        help="version of the selected kernel flavour.\n"
+                             "For the `kernel` flavour, the actual value is ignored. You can put '' for example.")
+    parser.add_argument('--ignore-existing', action='store_true',
+                        help="in the case of the add action, stop silently if the entry is already present")
+    parser.add_argument('--ignore-missing', action='store_true',
+                        help="in the case of the remove action, stop silently if the entry is not found")
+    args = parser.parse_args()
+
+    if args.action == 'add':
+        add(grub_file, args.flavour, args.version, ignore_existing=args.ignore_existing)
+    elif args.action == 'remove':
+        remove(grub_file, args.flavour, args.version, ignore_missing=args.ignore_missing)
+    elif args.action == 'set-default':
+        set_default(grub_file, args.flavour, args.version)
 
 if __name__ == "__main__":
    main(sys.argv[1:])
