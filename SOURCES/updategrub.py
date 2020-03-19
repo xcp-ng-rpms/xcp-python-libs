@@ -44,6 +44,17 @@ def title_from_flavour_version(flavour, version):
     else:
         return "XCP-ng %s %s" % (flavour, version)
 
+def create_menu_entry_from_existing(entry, version, title):
+    return bootloader.MenuEntry(
+        entry.hypervisor,
+        entry.hypervisor_args,
+        "/boot/vmlinuz-" + version + "-xen",
+        entry.kernel_args,
+        "/boot/initrd-" + version + "-xen.img",
+        title,
+        root = entry.root
+    )
+
 def add(grub_file, flavour, version, ignore_existing = False):
     """
     Add new grub entry by copying "XCP-ng" entry into "XCP-ng {flavour}"
@@ -57,7 +68,7 @@ def add(grub_file, flavour, version, ignore_existing = False):
     ignore_existing -- if True and no kernel is found for the given parameters, stop silently
     """
     if flavour == 'kernel':
-        print("'%s' is a forbidden value for this action" % flavour, file=sys.stderr)
+        print("'%s' is a forbidden value for this action." % flavour, file=sys.stderr)
         sys.exit(1)
 
     vmlinuz = '/boot/vmlinuz-%s' % version
@@ -80,20 +91,10 @@ def add(grub_file, flavour, version, ignore_existing = False):
                 sys.exit(1)
 
     # If version is not present, use default kernel as template
-    key = 'xe'
-    new_entry = bootloader.MenuEntry(
-        b.menu.get(key).hypervisor,
-        b.menu.get(key).hypervisor_args,
-        "/boot/vmlinuz-" + version + "-xen",
-        b.menu.get(key).kernel_args,
-        "/boot/initrd-" + version + "-xen.img",
-        title,
-        root = b.menu.get(key).root
-    )
+    new_entry = create_menu_entry_from_existing(b.menu.get('xe'), version, title)
     b.append("new", new_entry)
     print("Adding '" + title + "' as grub entry #" + str(len(b.menu)-1))
     b.writeGrub2(grub_file)
-
 
 def remove(grub_file, flavour, version, ignore_missing = False):
     """
@@ -107,7 +108,7 @@ def remove(grub_file, flavour, version, ignore_missing = False):
     ignore_missing -- if True and no grub entry is found for the given parameters, stop silently
     """
     if flavour == 'kernel':
-        print("'%s' is a forbidden value for this action" % flavour, file=sys.stderr)
+        print("'%s' is a forbidden value for this action." % flavour, file=sys.stderr)
         sys.exit(1)
 
     b = bootloader.Bootloader("grub2", grub_file)
@@ -129,12 +130,59 @@ def remove(grub_file, flavour, version, ignore_missing = False):
               file=sys.stderr)
         sys.exit(1)
 
-#
-# Function Name : set_default
-# Params : arg is "alt" kernel version e.g. 4.19.102
-# Params : grub_file is the file path to write grub configuration
-# Description : The function is used to set alt kernel entry as next default.
-#
+def replace(grub_file, flavour, old_version, version, ignore_missing = False):
+    """
+    Replace an existing grub entry with a new one
+
+    Keyword arguments:
+    grub_file -- the file path to write grub configuration
+    flavour -- one of XCP-ng's kernel flavours: kernel-alt...
+               Value 'kernel' is forbidden for this function.
+    old_version -- the kernel version of the entry to replace.
+    version -- the kernel version e.g. 4.19.102.
+    ignore_missing -- if True and no grub entry is found for the given flavour + old_version,
+                      gracefully fall back to the add action
+    """
+    if flavour == 'kernel':
+        print("'%s' is a forbidden value for this action." % flavour, file=sys.stderr)
+        sys.exit(1)
+
+    if old_version == version:
+        print("I can't replace version %s with itself." % old_version)
+        sys.exit(1)
+
+    vmlinuz = '/boot/vmlinuz-%s' % version
+    if not os.path.exists(vmlinuz):
+        print("kernel %s doesn't exist." % vmlinuz, file=sys.stderr)
+        sys.exit(1)
+
+    b = bootloader.Bootloader("grub2", grub_file)
+    b = b.loadExisting()
+
+    old_title = title_from_flavour_version(flavour, old_version)
+    title = title_from_flavour_version(flavour, version)
+    for key in b.menu:
+        if b.menu.get(key).title == old_title:
+            is_default = b.default == key
+            print("Replacing '" + old_title + "' grub entry with '" + title + "'.")
+            # create the new menu entry from the existing for the same kernel flavour
+            new_entry = create_menu_entry_from_existing(b.menu.get(key), version, title)
+            b.append("new", new_entry)
+            if is_default:
+                print("As the former was the default entry, setting the new one as default.")
+                b.default = "new"
+            b.remove(key)
+            b.writeGrub2(grub_file)
+            return
+
+    if not ignore_missing:
+        print("Entry '%s' not found in grub configuration, can't replace it." % old_title,
+              file=sys.stderr)
+        sys.exit(1)
+    else:
+        # treat the situation as a simple add
+        add(grub_file, flavour, version)
+
 
 def set_default(grub_file, flavour, version):
     """
@@ -167,7 +215,7 @@ def set_default(grub_file, flavour, version):
 def main(argv):
     grub_file = str(grub_path())
     parser = argparse.ArgumentParser(description='Update grub menu entries for XCP-ng\'s additional kernels')
-    actions = ['add', 'remove', 'set-default']
+    actions = ['add', 'remove', 'replace', 'set-default']
     parser.add_argument('action', choices=actions,
                         help="An action among: %s." % ', '.join(actions))
     flavours = ['kernel', 'kernel-alt']
@@ -179,13 +227,20 @@ def main(argv):
     parser.add_argument('--ignore-existing', action='store_true',
                         help="in the case of the add action, stop silently if the entry is already present")
     parser.add_argument('--ignore-missing', action='store_true',
-                        help="in the case of the remove action, stop silently if the entry is not found")
+                        help="in the case of the remove action, stop silently if the entry is not found\n"
+                             "and in the case of the replace action, silently convert the action into a add")
+    parser.add_argument('--old-version', help="in the case of the replace action, the version to be replaced")
     args = parser.parse_args()
 
     if args.action == 'add':
         add(grub_file, args.flavour, args.version, ignore_existing=args.ignore_existing)
     elif args.action == 'remove':
         remove(grub_file, args.flavour, args.version, ignore_missing=args.ignore_missing)
+    elif args.action == 'replace':
+        if not args.old_version:
+            print("The --old-version parameter is required with the replace action.")
+            sys.exit(1)
+        replace(grub_file, args.flavour, args.old_version, args.version, args.ignore_missing)
     elif args.action == 'set-default':
         set_default(grub_file, args.flavour, args.version)
 
