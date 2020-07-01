@@ -2,13 +2,13 @@
 
 Summary: Common XenServer Python classes
 Name: xcp-python-libs
-Version: 2.3.2
+Version: 2.3.3
 Release: 1
 
-Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.2&format=tar.gz&prefix=xcp-python-libs-2.3.2#/xcp-python-libs-2.3.2.tar.gz
+Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.3&format=tar.gz&prefix=xcp-python-libs-2.3.3#/xcp-python-libs-2.3.3.tar.gz
 
 
-Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.2&format=tar.gz&prefix=xcp-python-libs-2.3.2#/xcp-python-libs-2.3.2.tar.gz) = c5f70292986dae0a908aea5f66165ec045c87679
+Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.3&format=tar.gz&prefix=xcp-python-libs-2.3.3#/xcp-python-libs-2.3.3.tar.gz) = d8d64afeb2d24ba5461297fc51c5767ffc141048
 
 License: GPL
 
@@ -41,6 +41,9 @@ Common XenServer Python classes.
 
 
 %changelog
+* Mon Jun 01 2020 Ross Lagerwall <ross.lagerwall@citrix.com> - 2.3.3-1
+- CA-339540: Fail NFS mounts faster
+
 * Thu Oct 31 2019 Ross Lagerwall <ross.lagerwall@citrix.com> - 2.3.2-1
 - CA-329771: Fix HTTP access with username but no password
 
