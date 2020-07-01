@@ -2,16 +2,16 @@
 
 Summary: Common XCP-ng Python classes
 Name: xcp-python-libs
-Version: 2.3.2
-Release: 1.4%{?dist}
+Version: 2.3.3
+Release: 1.1%{?dist}
 
-Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.2&format=tar.gz&prefix=xcp-python-libs-2.3.2#/xcp-python-libs-2.3.2.tar.gz
+Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.3&format=tar.gz&prefix=xcp-python-libs-2.3.3#/xcp-python-libs-2.3.3.tar.gz
 
 # XCP-ng
 # This repo is the upstream for updategrub.py, for now
 Source1: updategrub.py
 
-Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.2&format=tar.gz&prefix=xcp-python-libs-2.3.2#/xcp-python-libs-2.3.2.tar.gz) = c5f70292986dae0a908aea5f66165ec045c87679
+Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.3&format=tar.gz&prefix=xcp-python-libs-2.3.3#/xcp-python-libs-2.3.3.tar.gz) = d8d64afeb2d24ba5461297fc51c5767ffc141048
 
 License: GPL
 
@@ -44,19 +44,12 @@ install -m 0775 %{SOURCE1} %{buildroot}%{python_sitelib}/xcp/updategrub.py
 %{python_sitelib}
 
 %changelog
-* Thu Mar 19 2020 Samuel Verschelde <stormi-xcp@ylix.fr> - 2.3.2-1.4
-- Add action 'replace' to updategrub.py
+* Wed Jul 01 2020 Samuel Verschelde <stormi-xcp@ylix.fr> - 2.3.3-1.1
+- Sync to CH 8.2
+- Keep updategrub.py
 
-* Wed Mar 18 2020 Samuel Verschelde <stormi-xcp@ylix.fr> - 2.3.2-1.3
-- Major update of updategrub.py
-- New syntax with positional parameters, better error handling, etc.
-- Related to https://github.com/xcp-ng/xcp/issues/345
-
-* Thu Mar 05 2020 Samuel Verschelde <stormi-xcp@ylix.fr> - 2.3.2-1.2
-- Update updategrub.py with latest fixes
-
-* Wed Mar 04 2020 Samuel Verschelde <stormi-xcp@ylix.fr> - 2.3.2-1.1
-- Add updategrub.py
+* Mon Jun 01 2020 Ross Lagerwall <ross.lagerwall@citrix.com> - 2.3.3-1
+- CA-339540: Fail NFS mounts faster
 
 * Thu Oct 31 2019 Ross Lagerwall <ross.lagerwall@citrix.com> - 2.3.2-1
 - CA-329771: Fix HTTP access with username but no password
