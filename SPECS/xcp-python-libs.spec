@@ -2,20 +2,20 @@
 
 Summary: Common XenServer Python classes
 Name: xcp-python-libs
-Version: 2.3.3
+Version: 2.3.4
 Release: 1
 
-Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.3&format=tar.gz&prefix=xcp-python-libs-2.3.3#/xcp-python-libs-2.3.3.tar.gz
+Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.4&format=tar.gz&prefix=xcp-python-libs-2.3.4#/xcp-python-libs-2.3.4.tar.gz
 
 
-Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.3&format=tar.gz&prefix=xcp-python-libs-2.3.3#/xcp-python-libs-2.3.3.tar.gz) = d8d64afeb2d24ba5461297fc51c5767ffc141048
+Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.4&format=tar.gz&prefix=xcp-python-libs-2.3.4#/xcp-python-libs-2.3.4.tar.gz) = 0b1609499d4dfabe024149c25566cd0e38752988
 
 License: GPL
 
 Group: Applications/System
 BuildArch: noarch
 
-BuildRequires: python-devel python-setuptools
+BuildRequires: python-devel python-setuptools python2-mock
 
 Obsoletes: xcp-python-libs-incloudsphere
 
@@ -27,6 +27,10 @@ Common XenServer Python classes.
 
 %build
 %{__python} setup.py build
+
+%check
+cd tests
+./run-all-tests.sh
 
 %install
 %{__rm} -rf %{buildroot}
@@ -41,6 +45,13 @@ Common XenServer Python classes.
 
 
 %changelog
+* Thu Sep 10 2020 Ross Lagerwall <ross.lagerwall@citrix.com> - 2.3.4-1
+- CA-343343: Handle PCI rules when device is missing
+- CP-34657: Fix running tests on CentOS 7
+
+* Fri Aug 14 2020 Ross Lagerwall <ross.lagerwall@citrix.com> - 2.3.3-2
+- CP-34657: Run tests during the build
+
 * Mon Jun 01 2020 Ross Lagerwall <ross.lagerwall@citrix.com> - 2.3.3-1
 - CA-339540: Fail NFS mounts faster
 
