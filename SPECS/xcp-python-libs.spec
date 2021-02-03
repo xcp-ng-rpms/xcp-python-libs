@@ -2,23 +2,23 @@
 
 Summary: Common XCP-ng Python classes
 Name: xcp-python-libs
-Version: 2.3.3
+Version: 2.3.4
 Release: 1.1%{?dist}
 
-Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.3&format=tar.gz&prefix=xcp-python-libs-2.3.3#/xcp-python-libs-2.3.3.tar.gz
+Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.4&format=tar.gz&prefix=xcp-python-libs-2.3.4#/xcp-python-libs-2.3.4.tar.gz
 
 # XCP-ng
 # This repo is the upstream for updategrub.py, for now
 Source1: updategrub.py
 
-Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.3&format=tar.gz&prefix=xcp-python-libs-2.3.3#/xcp-python-libs-2.3.3.tar.gz) = d8d64afeb2d24ba5461297fc51c5767ffc141048
+Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.4&format=tar.gz&prefix=xcp-python-libs-2.3.4#/xcp-python-libs-2.3.4.tar.gz) = 0b1609499d4dfabe024149c25566cd0e38752988
 
 License: GPL
 
 Group: Applications/System
 BuildArch: noarch
 
-BuildRequires: python-devel python-setuptools
+BuildRequires: python-devel python-setuptools python2-mock
 
 Obsoletes: xcp-python-libs-incloudsphere
 
@@ -30,6 +30,10 @@ Common XCP-ng Python classes.
 
 %build
 %{__python} setup.py build
+
+%check
+cd tests
+./run-all-tests.sh
 
 %install
 %{__rm} -rf %{buildroot}
@@ -44,9 +48,16 @@ install -m 0775 %{SOURCE1} %{buildroot}%{python_sitelib}/xcp/updategrub.py
 %{python_sitelib}
 
 %changelog
-* Wed Jul 01 2020 Samuel Verschelde <stormi-xcp@ylix.fr> - 2.3.3-1.1
-- Sync to CH 8.2
+* Wed Feb 02 2021 Samuel Verschelde <stormi-xcp@ylix.fr> - 2.3.4-1.1
+- Update to hotfix XS82E015
 - Keep updategrub.py
+
+* Thu Sep 10 2020 Ross Lagerwall <ross.lagerwall@citrix.com> - 2.3.4-1
+- CA-343343: Handle PCI rules when device is missing
+- CP-34657: Fix running tests on CentOS 7
+
+* Fri Aug 14 2020 Ross Lagerwall <ross.lagerwall@citrix.com> - 2.3.3-2
+- CP-34657: Run tests during the build
 
 * Mon Jun 01 2020 Ross Lagerwall <ross.lagerwall@citrix.com> - 2.3.3-1
 - CA-339540: Fail NFS mounts faster
