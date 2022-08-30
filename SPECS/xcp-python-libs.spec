@@ -1,17 +1,16 @@
+%global package_speccommit c99e8f317f12009c22f3103f7c648ae770247e0f
+%global package_srccommit v2.3.5
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Summary: Common XCP-ng Python classes
 Name: xcp-python-libs
-Version: 2.3.4
-Release: 1.1%{?dist}
-
-Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.4&format=tar.gz&prefix=xcp-python-libs-2.3.4#/xcp-python-libs-2.3.4.tar.gz
+Version: 2.3.5
+Release: 1.1%{?xsrel}%{?dist}
+Source0: xcp-python-libs-2.3.5.tar.gz
 
 # XCP-ng
 # This repo is the upstream for updategrub.py, for now
 Source1: updategrub.py
-
-Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.4&format=tar.gz&prefix=xcp-python-libs-2.3.4#/xcp-python-libs-2.3.4.tar.gz) = 0b1609499d4dfabe024149c25566cd0e38752988
 
 License: GPL
 
@@ -48,9 +47,12 @@ install -m 0775 %{SOURCE1} %{buildroot}%{python_sitelib}/xcp/updategrub.py
 %{python_sitelib}
 
 %changelog
-* Wed Feb 02 2021 Samuel Verschelde <stormi-xcp@ylix.fr> - 2.3.4-1.1
-- Update to hotfix XS82E015
+* Wed Feb 02 2021 Samuel Verschelde <stormi-xcp@ylix.fr> - 2.3.5-1.1
+- Update to CH 8.3 Preview
 - Keep updategrub.py
+
+* Mon Nov 29 2021 Deli Zhang <deli.zhang@citrix.com> - 2.3.5-1
+- CP-37849: Support .treeinfo new format
 
 * Thu Sep 10 2020 Ross Lagerwall <ross.lagerwall@citrix.com> - 2.3.4-1
 - CA-343343: Handle PCI rules when device is missing
