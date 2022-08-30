@@ -1,15 +1,12 @@
+%global package_speccommit c99e8f317f12009c22f3103f7c648ae770247e0f
+%global package_srccommit v2.3.5
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Summary: Common XenServer Python classes
 Name: xcp-python-libs
-Version: 2.3.4
-Release: 1
-
-Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.4&format=tar.gz&prefix=xcp-python-libs-2.3.4#/xcp-python-libs-2.3.4.tar.gz
-
-
-Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/xcp-python-libs/archive?at=v2.3.4&format=tar.gz&prefix=xcp-python-libs-2.3.4#/xcp-python-libs-2.3.4.tar.gz) = 0b1609499d4dfabe024149c25566cd0e38752988
-
+Version: 2.3.5
+Release: 1%{?xsrel}%{?dist}
+Source0: xcp-python-libs-2.3.5.tar.gz
 License: GPL
 
 Group: Applications/System
@@ -45,6 +42,9 @@ cd tests
 
 
 %changelog
+* Mon Nov 29 2021 Deli Zhang <deli.zhang@citrix.com> - 2.3.5-1
+- CP-37849: Support .treeinfo new format
+
 * Thu Sep 10 2020 Ross Lagerwall <ross.lagerwall@citrix.com> - 2.3.4-1
 - CA-343343: Handle PCI rules when device is missing
 - CP-34657: Fix running tests on CentOS 7
