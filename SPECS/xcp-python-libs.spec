@@ -47,7 +47,7 @@ install -m 0775 %{SOURCE1} %{buildroot}%{python_sitelib}/xcp/updategrub.py
 %{python_sitelib}
 
 %changelog
-* Wed Feb 02 2021 Samuel Verschelde <stormi-xcp@ylix.fr> - 2.3.5-1.1
+* Tue Aug 30 2022 Samuel Verschelde <stormi-xcp@ylix.fr> - 2.3.5-1.1
 - Update to CH 8.3 Preview
 - Keep updategrub.py
 
