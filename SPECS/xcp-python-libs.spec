@@ -1,12 +1,16 @@
-%global package_speccommit c99e8f317f12009c22f3103f7c648ae770247e0f
-%global package_srccommit v2.3.5
-%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
+%global package_speccommit 4667fd527d3183fdb1968f2be7041a5a0ebe927c
+%global usver 3.0.2
+%global xsver 4
+%global xsrel %{xsver}%{?xscount}%{?xshash}
+%bcond_with test
 
 Summary: Common XCP-ng Python classes
 Name: xcp-python-libs
-Version: 2.3.5
-Release: 1.1%{?xsrel}%{?dist}
-Source0: xcp-python-libs-2.3.5.tar.gz
+Version: 3.0.2
+Release: %{?xsrel}%{?dist}
+Source0: xcp-python-libs-3.0.2.tar.gz
+Patch0: 0001-Remove-setuptools_scm.patch
+%define __python python3
 
 # XCP-ng
 # This repo is the upstream for updategrub.py, for now
@@ -17,39 +21,91 @@ License: GPL
 Group: Applications/System
 BuildArch: noarch
 
-BuildRequires: python-devel python-setuptools python2-mock
-
 Obsoletes: xcp-python-libs-incloudsphere
+BuildRequires: python3-devel python3-setuptools python3-pip
+
+%if 0%{?xenserver} >= 9
+BuildRequires: pyproject-rpm-macros
+%endif
 
 %description
-Common XCP-ng Python classes.
+Common XCP-ng Python classes for python3
+
+%package -n python3-xcp-libs
+Summary: Common XCP-ng Python classes for Python3
+# See https://github.com/xenserver/python-libs/blob/master/pyproject.toml:
+Requires: python3-six
+Requires: biosdevname
+%description -n python3-xcp-libs
+Common XenServer Python classes for Python3
 
 %prep
 %autosetup -p1
+%if 0%{?xenserver} < 9
+ln -s setup27.py setup.py
+%else
+# We do not generate the version dynamically, but set the version statically
+sed -i "s/dynamic *= *\[\"version\"\]/version = \"%{version}\"/g" pyproject.toml
+%generate_buildrequires
+%pyproject_buildrequires
+%endif
 
 %build
+%if 0%{?xenserver} < 9
 %{__python} setup.py build
-
-%check
-cd tests
-./run-all-tests.sh
+%else
+%pyproject_wheel
+%endif
 
 %install
-%{__rm} -rf %{buildroot}
+%if 0%{?xenserver} < 9
 %{__python} setup.py install -O2 --skip-build --root %{buildroot}
-install -m 0775 %{SOURCE1} %{buildroot}%{python_sitelib}/xcp/updategrub.py
+%else
+%pyproject_install xcp
+%endif
+
+# XCP-ng: FIXME. Needs to be ported to python3 and packaged properly.
+#install -m 0775 %{SOURCE1} %{buildroot}%{python_sitelib}/xcp/updategrub.py
+
+%check
+%if %{with test}
+cd tests
+./run-all-tests.sh
+%endif
 
 %clean
 %{__rm} -rf %{buildroot}
 
-%files
+%files -n python3-xcp-libs
 %defattr(-,root,root)
-%{python_sitelib}
+%{python3_sitelib}/python_libs-*
+%{python3_sitelib}/xcp
 
 %changelog
-* Tue Aug 30 2022 Samuel Verschelde <stormi-xcp@ylix.fr> - 2.3.5-1.1
-- Update to CH 8.3 Preview
-- Keep updategrub.py
+* Mon Jan 22 2024 Samuel Verschelde <stormi-xcp@ylix.fr> - 3.0.2-4.1
+- Update to 3.0.2-4
+- Keep updategrub.py sources but don't install it until ported to python3
+
+* Thu Nov 16 2023 Lin Liu <lin.liu@citrix.com> - 3.0.2-4
+- Rebuild to requires biosdevname for package
+
+* Thu Nov 16 2023 Lin Liu <lin.liu@citrix.com> - 3.0.2-3
+- CA-384331: Requires biosdevname
+
+* Tue Oct 31 2023 Lin Liu <lin.liu@citrix.com> - 3.0.2-2
+- Build python3 package for XS8 & XS9
+
+* Fri Oct 27 2023 Lin Liu <lin.liu@citrix.com> - 3.0.2-1
+- Fixup `None` in bootup MenuEntry
+
+* Mon Sep 25 2023 Gerald Elder-Vass <gerald.elder-vass@citrix.com> - 3.0.1-1
+- CP-41302: Use absolute import for branding.py
+
+* Thu Sep 7 2023 Lin Liu <Lin.Liu01@cloud.com> - 3.0.0-2
+- CP-45003: Fixup release number
+
+* Thu Aug 17 2023 Bernhard Kaindl <bernhard.kaindl@cloud.com> - 3.0.0-1
+- CP-45003: build xcp-python-libs for Python3
 
 * Mon Nov 29 2021 Deli Zhang <deli.zhang@citrix.com> - 2.3.5-1
 - CP-37849: Support .treeinfo new format
@@ -102,7 +158,7 @@ install -m 0775 %{SOURCE1} %{buildroot}%{python_sitelib}/xcp/updategrub.py
 * Mon Apr 30 2018 Simon <simon.rowe@citrix.com> - 2.0.3-3
 - Removed branding.py
 
-* Wed Jan 01 2018 Owen Smith <owen.smith@citrix.com> - 2.0.3-2
+* Mon Jan 01 2018 Owen Smith <owen.smith@citrix.com> - 2.0.3-2
 - CA-281789: Bump release, so that Jura will include an updated package
 
 * Mon Oct 16 2017 Simon Rowe <simon.rowe@citrix.com> - 2.0.3-1
