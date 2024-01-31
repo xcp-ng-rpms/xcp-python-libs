@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright (C) 2020 - Vates
 #
@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this script.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function
 import sys, os, argparse
 from xcp import bootloader
 
