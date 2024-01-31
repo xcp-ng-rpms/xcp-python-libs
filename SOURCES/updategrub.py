@@ -16,9 +16,10 @@
 # along with this script.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys, os, argparse
+from typing import List
 from xcp import bootloader
 
-def grub_path(root = '/'):
+def grub_path(root: str = '/') -> str:
     """
     Find grub file path.
 
@@ -37,13 +38,14 @@ def grub_path(root = '/'):
 
     raise RuntimeError("No existing bootloader configuration found")
 
-def title_from_flavour_version(flavour, version):
+def title_from_flavour_version(flavour: str, version: str) -> str:
     if flavour == 'kernel':
         return "XCP-ng"
     else:
         return "XCP-ng %s %s" % (flavour, version)
 
-def create_menu_entry_from_existing(entry, version, title):
+def create_menu_entry_from_existing(entry: bootloader.MenuEntry,
+                                    version: str, title: str) -> bootloader.MenuEntry:
     return bootloader.MenuEntry(
         entry.hypervisor,
         entry.hypervisor_args,
@@ -54,7 +56,7 @@ def create_menu_entry_from_existing(entry, version, title):
         root = entry.root
     )
 
-def add(grub_file, flavour, version, ignore_existing = False):
+def add(grub_file: str, flavour: str, version: str, ignore_existing: bool = False) -> None:
     """
     Add new grub entry by copying "XCP-ng" entry into "XCP-ng {flavour}"
     such that the additional kernel can be selected.
@@ -95,7 +97,7 @@ def add(grub_file, flavour, version, ignore_existing = False):
     print("Adding '" + title + "' as grub entry #" + str(len(b.menu)-1))
     b.writeGrub2(grub_file)
 
-def remove(grub_file, flavour, version, ignore_missing = False):
+def remove(grub_file: str, flavour: str, version: str, ignore_missing: bool = False) -> None:
     """
     Remove the grub boot entry related to the kernel flavour and version
 
@@ -129,7 +131,7 @@ def remove(grub_file, flavour, version, ignore_missing = False):
               file=sys.stderr)
         sys.exit(1)
 
-def replace(grub_file, flavour, old_version, version, ignore_missing = False):
+def replace(grub_file: str, flavour: str, old_version: str, version: str, ignore_missing: bool = False) -> None:
     """
     Replace an existing grub entry with a new one
 
@@ -183,7 +185,7 @@ def replace(grub_file, flavour, old_version, version, ignore_missing = False):
         add(grub_file, flavour, version)
 
 
-def set_default(grub_file, flavour, version):
+def set_default(grub_file: str, flavour: str, version: str) -> None:
     """
     Set an existing grub boot entry as default
 
@@ -211,7 +213,7 @@ def set_default(grub_file, flavour, version):
     sys.exit(1)
 
 
-def main(argv):
+def main(argv: List[str]) -> None:
     grub_file = str(grub_path())
     parser = argparse.ArgumentParser(description='Update grub menu entries for XCP-ng\'s additional kernels')
     actions = ['add', 'remove', 'replace', 'set-default']
