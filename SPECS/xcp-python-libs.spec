@@ -1,6 +1,6 @@
 %global package_speccommit 4667fd527d3183fdb1968f2be7041a5a0ebe927c
 %global usver 3.0.2
-%global xsver 4.1
+%global xsver 4.2
 %global xsrel %{xsver}%{?xscount}%{?xshash}
 %bcond_with test
 
@@ -64,8 +64,11 @@ sed -i "s/dynamic *= *\[\"version\"\]/version = \"%{version}\"/g" pyproject.toml
 %pyproject_install xcp
 %endif
 
-# XCP-ng: FIXME. Needs to be ported to python3 and packaged properly.
-#install -m 0775 %{SOURCE1} %{buildroot}%{python_sitelib}/xcp/updategrub.py
+install -m 0775 -d %{buildroot}/opt/xensource/bin
+install -m 0775 %{SOURCE1} %{buildroot}/opt/xensource/bin/updategrub.py
+# compat symlink
+mkdir -p %{buildroot}/usr/lib/python2.7/site-packages/xcp
+ln -sr %{buildroot}/opt/xensource/bin/updategrub.py %{buildroot}/usr/lib/python2.7/site-packages/xcp/updategrub.py
 
 %check
 %if %{with test}
@@ -80,8 +83,14 @@ cd tests
 %defattr(-,root,root)
 %{python3_sitelib}/python_libs-*
 %{python3_sitelib}/xcp
+/opt/xensource/bin/updategrub.py
+/usr/lib/python2.7/site-packages/xcp/updategrub.py
 
 %changelog
+* Wed Jan 31 2024 Yann Dirson <yann.dirson@vates.tech> - 3.0.2-4.2
+- Switch updategrub.py to python3, install in /opt/xensource/bin,
+  keep a compat symlink for old kernel-alt hardcoding a python2.7 path
+
 * Mon Jan 22 2024 Samuel Verschelde <stormi-xcp@ylix.fr> - 3.0.2-4.1
 - Update to 3.0.2-4
 - Keep updategrub.py sources but don't install it until ported to python3
