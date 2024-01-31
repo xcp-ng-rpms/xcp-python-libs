@@ -1,6 +1,6 @@
 %global package_speccommit 4667fd527d3183fdb1968f2be7041a5a0ebe927c
 %global usver 3.0.2
-%global xsver 4
+%global xsver 4.1
 %global xsrel %{xsver}%{?xscount}%{?xshash}
 %bcond_with test
 
