@@ -1,6 +1,6 @@
 %global package_speccommit 4667fd527d3183fdb1968f2be7041a5a0ebe927c
 %global usver 3.0.2
-%global xsver 4.2
+%global xsver 4.3
 %global xsrel %{xsver}%{?xscount}%{?xshash}
 %bcond_with test
 
@@ -87,6 +87,9 @@ cd tests
 /usr/lib/python2.7/site-packages/xcp/updategrub.py
 
 %changelog
+* Tue Apr 16 2024 Thierry Escande <thierry.escande@vates.tech> - 3.0.2-4.3
+- Fix misplaced parenthesis in f-string
+
 * Wed Jan 31 2024 Yann Dirson <yann.dirson@vates.tech> - 3.0.2-4.2
 - Switch updategrub.py to python3, install in /opt/xensource/bin,
   keep a compat symlink for old kernel-alt hardcoding a python2.7 path

@@ -94,7 +94,7 @@ def add(grub_file: str, flavour: str, version: str, ignore_existing: bool = Fals
     # If version is not present, use default kernel as template
     new_entry = create_menu_entry_from_existing(b.menu.get('xe'), version, title)
     b.append("new", new_entry)
-    print(f"Adding '{title}' as grub entry #{str(len(b.menu)-1}"))
+    print(f"Adding '{title}' as grub entry #{str(len(b.menu)-1)}")
     b.writeGrub2(grub_file)
 
 def remove(grub_file: str, flavour: str, version: str, ignore_missing: bool = False) -> None:
