@@ -1,14 +1,14 @@
-%global package_speccommit 4667fd527d3183fdb1968f2be7041a5a0ebe927c
-%global usver 3.0.2
-%global xsver 4.3
+%global package_speccommit d201b55f9c09eb1122b7cb0f7265db771ab68850
+%global usver 3.0.4
+%global xsver 1
 %global xsrel %{xsver}%{?xscount}%{?xshash}
 %bcond_with test
 
 Summary: Common XCP-ng Python classes
 Name: xcp-python-libs
-Version: 3.0.2
-Release: %{?xsrel}%{?dist}
-Source0: xcp-python-libs-3.0.2.tar.gz
+Version: 3.0.4
+Release: %{?xsrel}.1%{?dist}
+Source0: xcp-python-libs-3.0.4.tar.gz
 Patch0: 0001-Remove-setuptools_scm.patch
 %define __python python3
 
@@ -87,6 +87,14 @@ cd tests
 /usr/lib/python2.7/site-packages/xcp/updategrub.py
 
 %changelog
+* Tue Jun 18 2024 Samuel Verschelde <stormi-xcp@ylix.fr> - 3.0.4-1.1
+- Rebase on 3.0.4-1
+- *** Upstream changelog ***
+- * Thu Mar 14 2024 Frediano Ziglio <frediano.ziglio@cloud.com> - 3.0.4-1
+- - CA-389988: Fix USB network handling
+- * Wed Mar 6 2024 Frediano Ziglio <frediano.ziglio@cloud.com> - 3.0.3-1
+- - CA-371311: Pick up updates to handle USB ethernet cards
+
 * Tue Apr 16 2024 Thierry Escande <thierry.escande@vates.tech> - 3.0.2-4.3
 - Fix misplaced parenthesis in f-string
 
