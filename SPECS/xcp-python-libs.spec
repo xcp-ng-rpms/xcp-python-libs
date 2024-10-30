@@ -7,7 +7,7 @@
 Summary: Common XCP-ng Python classes
 Name: xcp-python-libs
 Version: 3.0.10
-Release: %{?xsrel}.1%{?dist}
+Release: %{?xsrel}.1.0.ydi.1%{?dist}
 Source0: xcp-python-libs-3.0.10.tar.gz
 Patch0: 0001-Remove-setuptools_scm.patch
 %define __python python3
@@ -26,6 +26,7 @@ BuildRequires: python3-devel python3-setuptools python3-pip
 
 %if 0%{?xenserver} >= 9
 BuildRequires: pyproject-rpm-macros
+BuildRequires: python3-wheel
 %endif
 
 %description
@@ -87,6 +88,9 @@ cd tests
 /usr/lib/python2.7/site-packages/xcp/updategrub.py
 
 %changelog
+* Thu Oct 09 2025 Yann Dirson <yann.dirson@vates.tech> - 3.0.10-1.1.0.ydi.1
+- Explicitly build-require python3-wheel on XS9
+
 * Wed Jan 14 2026 Yann Dirson <yann.dirson@vates.tech> - 3.0.10-1.1
 - Rebase on 3.0.10-1
 - *** Upstream changelog ***
