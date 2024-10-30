@@ -78,9 +78,11 @@ sed -i "s/dynamic *= *\[\"version\"\]/version = \"%{version}\"/g" pyproject.toml
 %if 0%{?xcpng}
 install -m 0775 -d %{buildroot}/opt/xensource/bin
 install -m 0775 %{SOURCE1} %{buildroot}/opt/xensource/bin/updategrub.py
+%if 0%{?xenserver} < 9
 # compat symlink
 mkdir -p %{buildroot}/usr/lib/python2.7/site-packages/xcp
 ln -sr %{buildroot}/opt/xensource/bin/updategrub.py %{buildroot}/usr/lib/python2.7/site-packages/xcp/updategrub.py
+%endif
 %endif
 
 %check
@@ -98,7 +100,9 @@ cd tests
 %{python3_sitelib}/xcp
 %if 0%{?xcpng}
 /opt/xensource/bin/updategrub.py
+%if 0%{?xenserver} < 9
 /usr/lib/python2.7/site-packages/xcp/updategrub.py
+%endif
 %endif
 
 %changelog
@@ -106,6 +110,8 @@ cd tests
 - Bracket XCP-ng changes using %xcpng macro
 - Explicitly build-require python3-wheel on v9
 - Add patch to include a 'set prefix=' statement in grub.cfg
+- In v9, drop /usr/lib/python2.7/site-packages/xcp/updategrub.py compat symlink
+  confusing RH packaging macros
 
 * Wed May 20 2026 Philippe Coval <philippe.coval@vates.tech> - 3.0.11-1.1
 - Rebase on 3.0.11-1
