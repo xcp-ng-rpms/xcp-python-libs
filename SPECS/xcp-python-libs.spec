@@ -68,9 +68,11 @@ sed -i "s/dynamic *= *\[\"version\"\]/version = \"%{version}\"/g" pyproject.toml
 
 install -m 0775 -d %{buildroot}/opt/xensource/bin
 install -m 0775 %{SOURCE1} %{buildroot}/opt/xensource/bin/updategrub.py
+%if 0%{?xenserver} < 9
 # compat symlink
 mkdir -p %{buildroot}/usr/lib/python2.7/site-packages/xcp
 ln -sr %{buildroot}/opt/xensource/bin/updategrub.py %{buildroot}/usr/lib/python2.7/site-packages/xcp/updategrub.py
+%endif
 
 %check
 %if %{with test}
@@ -86,12 +88,16 @@ cd tests
 %{python3_sitelib}/python_libs-*
 %{python3_sitelib}/xcp
 /opt/xensource/bin/updategrub.py
+%if 0%{?xenserver} < 9
 /usr/lib/python2.7/site-packages/xcp/updategrub.py
+%endif
 
 %changelog
 * Thu Oct 09 2025 Yann Dirson <yann.dirson@vates.tech> - 3.0.10-1.1.0.ydi.1
 - Explicitly build-require python3-wheel on XS9
 - Add patch to include a 'set prefix=' statement in grub.cfg
+- In v9, drop /usr/lib/python2.7/site-packages/xcp/updategrub.py compat symlink
+  confusing RH packaging macros
 
 * Wed Jan 14 2026 Yann Dirson <yann.dirson@vates.tech> - 3.0.10-1.1
 - Rebase on 3.0.10-1
