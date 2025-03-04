@@ -1,6 +1,6 @@
-%global package_speccommit d201b55f9c09eb1122b7cb0f7265db771ab68850
+%global package_speccommit f8b125eafa1a74df63295d60eab4fef09b380527
 %global usver 3.0.4
-%global xsver 1
+%global xsver 2
 %global xsrel %{xsver}%{?xscount}%{?xshash}
 %bcond_with test
 
@@ -31,6 +31,7 @@ Summary: Common XenServer Python classes for Python3
 # See https://github.com/xenserver/python-libs/blob/master/pyproject.toml:
 Requires: python3-six
 Requires: biosdevname
+Requires: xenserver-release >= 8.3.60-5
 %description -n python3-xcp-libs
 Common XenServer Python classes for Python3
 
@@ -74,6 +75,9 @@ cd tests
 %{python3_sitelib}/xcp
 
 %changelog
+* Tue Jun 11 2024 Frediano Ziglio <frediano.ziglio@cloud.com> - 3.0.4-2
+- Add missing package dependencies
+
 * Thu Mar 14 2024 Frediano Ziglio <frediano.ziglio@cloud.com> - 3.0.4-1
 - CA-389988: Fix USB network handling
 
