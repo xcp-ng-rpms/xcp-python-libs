@@ -1,6 +1,6 @@
-%global package_speccommit d201b55f9c09eb1122b7cb0f7265db771ab68850
+%global package_speccommit f8b125eafa1a74df63295d60eab4fef09b380527
 %global usver 3.0.4
-%global xsver 1
+%global xsver 2
 %global xsrel %{xsver}%{?xscount}%{?xshash}
 %bcond_with test
 
@@ -87,6 +87,12 @@ cd tests
 /usr/lib/python2.7/site-packages/xcp/updategrub.py
 
 %changelog
+* Wed Mar 05 2025 Samuel Verschelde <stormi-xcp@ylix.fr> - 3.0.4-2.1
+- Rebase on 3.0.4-2
+- *** Upstream changelog ***
+  * Tue Jun 11 2024 Frediano Ziglio <frediano.ziglio@cloud.com> - 3.0.4-2
+  - Add missing package dependencies
+
 * Tue Jun 18 2024 Samuel Verschelde <stormi-xcp@ylix.fr> - 3.0.4-1.1
 - Rebase on 3.0.4-1
 - *** Upstream changelog ***
