@@ -1,14 +1,14 @@
-%global package_speccommit f8b125eafa1a74df63295d60eab4fef09b380527
-%global usver 3.0.4
-%global xsver 2
+%global package_speccommit d77a5c15664eb0469f7fbcad5426ebf4c87e4321
+%global usver 3.0.6
+%global xsver 1
 %global xsrel %{xsver}%{?xscount}%{?xshash}
 %bcond_with test
 
 Summary: Common XenServer Python classes
 Name: xcp-python-libs
-Version: 3.0.4
+Version: 3.0.6
 Release: %{?xsrel}%{?dist}
-Source0: xcp-python-libs-3.0.4.tar.gz
+Source0: xcp-python-libs-3.0.6.tar.gz
 Patch0: 0001-Remove-setuptools_scm.patch
 %define __python python3
 License: GPL
@@ -75,6 +75,12 @@ cd tests
 %{python3_sitelib}/xcp
 
 %changelog
+* Mon Mar 03 2025 Stephen Cheng <stephen.cheng@cloud.com> - 3.0.6-1
+- CA-407115: Adding logic to handle boot entries without additional arguments
+
+* Fri Nov 08 2024 Ross Lagerwall <ross.lagerwall@citrix.com> - 3.0.5-1
+- CA-392459: Avoid opening /dev/mem when calling biosdevname
+
 * Tue Jun 11 2024 Frediano Ziglio <frediano.ziglio@cloud.com> - 3.0.4-2
 - Add missing package dependencies
 
