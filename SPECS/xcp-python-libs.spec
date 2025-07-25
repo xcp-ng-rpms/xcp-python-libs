@@ -11,6 +11,7 @@ Version: 3.0.11
 Release: %{?xsrel}.1%{?dist}
 Source0: xcp-python-libs-3.0.11.tar.gz
 Patch0: 0001-Remove-setuptools_scm.patch
+Patch1: 0001-Enhance-Bootloader-with-optional-set-prefix.patch
 %define __python python3
 
 %if 0%{?xcpng}
@@ -104,6 +105,7 @@ cd tests
 * Fri Nov 13 2026 Yann Dirson <yann.dirson@vates.tech> - 3.0.11-1.2
 - Bracket XCP-ng changes using %xcpng macro
 - Explicitly build-require python3-wheel on v9
+- Add patch to include a 'set prefix=' statement in grub.cfg
 
 * Wed May 20 2026 Philippe Coval <philippe.coval@vates.tech> - 3.0.11-1.1
 - Rebase on 3.0.11-1
