@@ -1,14 +1,14 @@
-%global package_speccommit d77a5c15664eb0469f7fbcad5426ebf4c87e4321
-%global usver 3.0.6
+%global package_speccommit 875debce2979f541f06aef3383ef6fbc650cda6d
+%global usver 3.0.8
 %global xsver 1
 %global xsrel %{xsver}%{?xscount}%{?xshash}
 %bcond_with test
 
 Summary: Common XenServer Python classes
 Name: xcp-python-libs
-Version: 3.0.6
+Version: 3.0.8
 Release: %{?xsrel}%{?dist}
-Source0: xcp-python-libs-3.0.6.tar.gz
+Source0: xcp-python-libs-3.0.8.tar.gz
 Patch0: 0001-Remove-setuptools_scm.patch
 %define __python python3
 License: GPL
@@ -75,6 +75,10 @@ cd tests
 %{python3_sitelib}/xcp
 
 %changelog
+* Thu Jul 31 2025 Ross Lagerwall <ross.lagerwall@citrix.com> - 3.0.8-1
+- CP-308428: bootloader: Add support for xen_boot entry type
+- bootloader: Various cleanup
+
 * Mon Mar 03 2025 Stephen Cheng <stephen.cheng@cloud.com> - 3.0.6-1
 - CA-407115: Adding logic to handle boot entries without additional arguments
 
