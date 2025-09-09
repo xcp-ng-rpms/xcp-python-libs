@@ -1,14 +1,14 @@
-%global package_speccommit d77a5c15664eb0469f7fbcad5426ebf4c87e4321
-%global usver 3.0.6
+%global package_speccommit 875debce2979f541f06aef3383ef6fbc650cda6d
+%global usver 3.0.8
 %global xsver 1
 %global xsrel %{xsver}%{?xscount}%{?xshash}
 %bcond_with test
 
 Summary: Common XCP-ng Python classes
 Name: xcp-python-libs
-Version: 3.0.6
+Version: 3.0.8
 Release: %{?xsrel}.1%{?dist}
-Source0: xcp-python-libs-3.0.6.tar.gz
+Source0: xcp-python-libs-3.0.8.tar.gz
 Patch0: 0001-Remove-setuptools_scm.patch
 %define __python python3
 
@@ -87,6 +87,13 @@ cd tests
 /usr/lib/python2.7/site-packages/xcp/updategrub.py
 
 %changelog
+* Tue Sep 09 2025 Guillaume Thouvenin <guillaume.thouvenin@vates.tech> - 3.0.8-1.1
+- Rebase on 3.0.8-1
+- *** Upstream changelog ***
+  * Thu Jul 31 2025 Ross Lagerwall <ross.lagerwall@citrix.com> - 3.0.8-1
+  - CP-308428: bootloader: Add support for xen_boot entry type
+  - bootloader: Various cleanup
+
 * Mon Aug 11 2025 Gaëtan Lehmann <gaetan.lehmann@vates.tech> - 3.0.6-1.1
 - Rebase on 3.0.6-1
 - *** Upstream changelog ***
