@@ -122,11 +122,12 @@ cd tests
 
 * Tue Jun 18 2024 Samuel Verschelde <stormi-xcp@ylix.fr> - 3.0.4-1.1
 - Rebase on 3.0.4-1
-- *** Upstream changelog ***
-- * Thu Mar 14 2024 Frediano Ziglio <frediano.ziglio@cloud.com> - 3.0.4-1
-- - CA-389988: Fix USB network handling
-- * Wed Mar 6 2024 Frediano Ziglio <frediano.ziglio@cloud.com> - 3.0.3-1
-- - CA-371311: Pick up updates to handle USB ethernet cards
+  *** Upstream changelog ***
+  * Thu Mar 14 2024 Frediano Ziglio <frediano.ziglio@cloud.com> - 3.0.4-1
+  - CA-389988: Fix USB network handling
+
+  * Wed Mar 6 2024 Frediano Ziglio <frediano.ziglio@cloud.com> - 3.0.3-1
+  - CA-371311: Pick up updates to handle USB ethernet cards
 
 * Tue Apr 16 2024 Thierry Escande <thierry.escande@vates.tech> - 3.0.2-4.3
 - Fix misplaced parenthesis in f-string
