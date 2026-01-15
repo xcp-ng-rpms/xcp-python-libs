@@ -1,14 +1,14 @@
-%global package_speccommit 875debce2979f541f06aef3383ef6fbc650cda6d
-%global usver 3.0.8
+%global package_speccommit 6c1f27d802c1e16edbea1e516ae7ffb36e179dd9
+%global usver 3.0.10
 %global xsver 1
 %global xsrel %{xsver}%{?xscount}%{?xshash}
 %bcond_with test
 
 Summary: Common XCP-ng Python classes
 Name: xcp-python-libs
-Version: 3.0.8
+Version: 3.0.10
 Release: %{?xsrel}.1%{?dist}
-Source0: xcp-python-libs-3.0.8.tar.gz
+Source0: xcp-python-libs-3.0.10.tar.gz
 Patch0: 0001-Remove-setuptools_scm.patch
 %define __python python3
 
@@ -87,6 +87,17 @@ cd tests
 /usr/lib/python2.7/site-packages/xcp/updategrub.py
 
 %changelog
+* Wed Jan 14 2026 Yann Dirson <yann.dirson@vates.tech> - 3.0.10-1.1
+- Rebase on 3.0.10-1
+- *** Upstream changelog ***
+  * Tue Sep 30 2025 Stephen Cheng <stephen.cheng@citrix.com> - 3.0.10-1
+  - CA-417888: Fix a drucat bug
+  - docs/ci: various update
+
+  * Fri Aug 22 2025 Chunjie Zhu <chunjie.zhu@cloud.com> - 3.0.9-1
+  - CP-54481: support DMV RPU plugin
+  - github ci: various update
+
 * Tue Sep 09 2025 Guillaume Thouvenin <guillaume.thouvenin@vates.tech> - 3.0.8-1.1
 - Rebase on 3.0.8-1
 - *** Upstream changelog ***
@@ -111,11 +122,12 @@ cd tests
 
 * Tue Jun 18 2024 Samuel Verschelde <stormi-xcp@ylix.fr> - 3.0.4-1.1
 - Rebase on 3.0.4-1
-- *** Upstream changelog ***
-- * Thu Mar 14 2024 Frediano Ziglio <frediano.ziglio@cloud.com> - 3.0.4-1
-- - CA-389988: Fix USB network handling
-- * Wed Mar 6 2024 Frediano Ziglio <frediano.ziglio@cloud.com> - 3.0.3-1
-- - CA-371311: Pick up updates to handle USB ethernet cards
+  *** Upstream changelog ***
+  * Thu Mar 14 2024 Frediano Ziglio <frediano.ziglio@cloud.com> - 3.0.4-1
+  - CA-389988: Fix USB network handling
+
+  * Wed Mar 6 2024 Frediano Ziglio <frediano.ziglio@cloud.com> - 3.0.3-1
+  - CA-371311: Pick up updates to handle USB ethernet cards
 
 * Tue Apr 16 2024 Thierry Escande <thierry.escande@vates.tech> - 3.0.2-4.3
 - Fix misplaced parenthesis in f-string
