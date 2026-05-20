@@ -1,14 +1,15 @@
-%global package_speccommit 6c1f27d802c1e16edbea1e516ae7ffb36e179dd9
-%global usver 3.0.10
+%global package_speccommit 905c68dc2384a221c539896c21d9b228922238d1
+%global usver 3.0.11
 %global xsver 1
 %global xsrel %{xsver}%{?xscount}%{?xshash}
+%global package_srccommit v3.0.11
 %bcond_with test
 
 Summary: Common XenServer Python classes
 Name: xcp-python-libs
-Version: 3.0.10
+Version: 3.0.11
 Release: %{?xsrel}%{?dist}
-Source0: xcp-python-libs-3.0.10.tar.gz
+Source0: xcp-python-libs-3.0.11.tar.gz
 Patch0: 0001-Remove-setuptools_scm.patch
 %define __python python3
 License: GPL
@@ -75,6 +76,12 @@ cd tests
 %{python3_sitelib}/xcp
 
 %changelog
+* Fri Mar 20 2026 Stephen Cheng <stephen.cheng@citrix.com> - 3.0.11-1
+- CA-375347: Add API to get crash kernel memory by version
+- CP-53030: bootloader: add RPU chainloader
+- Fix pylint errors
+- CP-53030: bootloader: stop MenuEntry.contents getting clobbered by setNextBoot
+
 * Tue Sep 30 2025 Stephen Cheng <stephen.cheng@citrix.com> - 3.0.10-1
 - CA-417888: Fix a drucat bug
 - docs/ci: various update
