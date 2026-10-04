@@ -7,10 +7,11 @@
 Summary: Common XCP-ng Python classes
 Name: xcp-python-libs
 Version: 3.0.10
-Release: %{?xsrel}.1.0.ydi.1%{?dist}
+Release: %{?xsrel}.1.0.ydi.2%{?dist}
 Source0: xcp-python-libs-3.0.10.tar.gz
 Patch0: 0001-Remove-setuptools_scm.patch
 Patch1: 0001-Enhance-Bootloader-with-optional-set-prefix.patch
+Patch2: 0001-bootloader-find-the-XCP-ng-9-grub.cfg-on-the-ESP-EFI.patch
 %define __python python3
 
 # XCP-ng
@@ -93,6 +94,10 @@ cd tests
 %endif
 
 %changelog
+* Sun Oct 04 2026 Olivier Lambert <olivier.lambert@vates.tech> - 3.0.10-1.1.0.ydi.2
+- Add patch so Bootloader.loadExisting() finds the XCP-ng 9 configuration
+  on the ESP (EFI/almalinux/grub.cfg), following grub2-common's configfile stub
+
 * Thu Oct 09 2025 Yann Dirson <yann.dirson@vates.tech> - 3.0.10-1.1.0.ydi.1
 - Explicitly build-require python3-wheel on XS9
 - Add patch to include a 'set prefix=' statement in grub.cfg

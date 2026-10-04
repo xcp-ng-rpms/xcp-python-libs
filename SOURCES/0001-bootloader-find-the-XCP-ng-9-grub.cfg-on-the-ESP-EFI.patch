@@ -1,0 +1,128 @@
+From ce12e28d67be5112a8ae4a2640d146faa5a28c50 Mon Sep 17 00:00:00 2001
+From: Olivier Lambert <olivier.lambert@vates.tech>
+Date: Sun, 4 Oct 2026 08:48:31 +0200
+Subject: [PATCH] bootloader: find the XCP-ng 9 grub.cfg on the ESP
+ (EFI/almalinux)
+
+loadExisting() only knew EFI/xenserver/grub.cfg, then fell back to
+boot/grub{,2}/grub.cfg. On XCP-ng 9 the installer writes the real
+configuration to EFI/almalinux/grub.cfg, so xen-cmdline & co either
+failed (no boot/grub2/grub.cfg: xapi aborts at startup) or read and
+edited a grub2-mkconfig file that is never used to boot.
+
+grub2-common's %posttrans turns the ESP file into a 'configfile' stub
+and moves the configuration to boot/grub2/grub.cfg: detect such a stub
+and keep falling back to boot/grub2/grub.cfg in that case.
+---
+ tests/test_bootloader.py | 64 ++++++++++++++++++++++++++++++++++++++++
+ xcp/bootloader.py        | 17 +++++++++++
+ 2 files changed, 81 insertions(+)
+
+diff --git a/tests/test_bootloader.py b/tests/test_bootloader.py
+index c67dbfa..b76b4dd 100644
+--- a/tests/test_bootloader.py
++++ b/tests/test_bootloader.py
+@@ -239,3 +239,67 @@ def check_config(bl):
+         )
+     )
+     assert bl.menu["xe"].initrd == "/boot/initrd-4.19-xen.img"
++
++
++class TestLoadExistingAlmaEfi(unittest.TestCase):
++    """XCP-ng 9 (EL10) keeps its configuration on the ESP as
++    EFI/almalinux/grub.cfg, until grub2-common's %posttrans turns that file
++    into a 'configfile' stub and moves the configuration to boot/grub2."""
++
++    STUB = ("search --no-floppy --root-dev-only --fs-uuid --set=dev 1234-ABCD\n"
++            "set prefix=($dev)/grub2\n"
++            "export $prefix\n"
++            "configfile $prefix/grub.cfg\n")
++    MKCONFIG = "menuentry 'unused' {\n\tlinux /boot/vmlinuz root=/dev/sda1\n}\n"
++
++    def setUp(self):
++        self.tmpdir = mkdtemp(prefix="testbl")
++
++    def tearDown(self):
++        shutil.rmtree(self.tmpdir)
++
++    def _put(self, path, content=None):
++        dest = os.path.join(self.tmpdir, path)
++        os.makedirs(os.path.dirname(dest), exist_ok=True)
++        if content is None:
++            shutil.copyfile("tests/data/grub.cfg", dest)
++        else:
++            with open_with_codec_handling(dest, "w") as fh:
++                fh.write(content)
++        return dest
++
++    def test_esp_config(self):
++        esp = self._put("boot/efi/EFI/almalinux/grub.cfg")
++        bl = Bootloader.loadExisting(root=self.tmpdir)
++        assert bl.src_file == esp
++        assert "xe" in bl.menu
++
++    def test_esp_config_wins_over_grub2_mkconfig(self):
++        esp = self._put("boot/efi/EFI/almalinux/grub.cfg")
++        self._put("boot/grub2/grub.cfg", self.MKCONFIG)
++        assert Bootloader.loadExisting(root=self.tmpdir).src_file == esp
++
++    def test_esp_stub_falls_back_to_grub2(self):
++        self._put("boot/efi/EFI/almalinux/grub.cfg", self.STUB)
++        real = self._put("boot/grub2/grub.cfg")
++        bl = Bootloader.loadExisting(root=self.tmpdir)
++        assert bl.src_file == real
++        assert "xe" in bl.menu
++
++    def test_esp_stub_alone(self):
++        self._put("boot/efi/EFI/almalinux/grub.cfg", self.STUB)
++        with self.assertRaises(RuntimeError):
++            Bootloader.loadExisting(root=self.tmpdir)
++
++    def test_xenserver_esp_still_first(self):
++        xs = self._put("boot/efi/EFI/xenserver/grub.cfg")
++        self._put("boot/efi/EFI/almalinux/grub.cfg")
++        assert Bootloader.loadExisting(root=self.tmpdir).src_file == xs
++
++    def test_commit_writes_back_to_esp(self):
++        esp = self._put("boot/efi/EFI/almalinux/grub.cfg")
++        bl = Bootloader.loadExisting(root=self.tmpdir)
++        bl.menu["xe"].kernel_args += " xen-pciback.hide=(0000:00:02.0)"
++        bl.commit()
++        with open_with_codec_handling(esp, "r") as fh:
++            assert "xen-pciback.hide=(0000:00:02.0)" in fh.read()
+diff --git a/xcp/bootloader.py b/xcp/bootloader.py
+index 7bcc337..53d9c3a 100644
+--- a/xcp/bootloader.py
++++ b/xcp/bootloader.py
+@@ -272,11 +272,28 @@ class Bootloader(object):
+         bootloader.boilerplate = boilerplates
+         return bootloader
+ 
++    @staticmethod
++    def _isConfigfileStub(src_file):
++        # type: (str) -> bool
++        """Whether src_file is a stub that only chains to another grub.cfg
++        (as grub2-common's %posttrans makes the ESP's grub.cfg), with no
++        menu entries of its own."""
++        with open_textfile(src_file, "r") as fh:
++            lines = [l.strip() for l in fh]
++        return (any(l.startswith("configfile") for l in lines) and
++                not any(l.startswith("menuentry") for l in lines))
++
+     @classmethod
+     def loadExisting(cls, root = '/'):
+         # type: (str) -> Bootloader
++        alma_efi = os.path.join(root, "boot/efi/EFI/almalinux/grub.cfg")
+         if os.path.exists(os.path.join(root, "boot/efi/EFI/xenserver/grub.cfg")):
+             return cls.readGrub2(os.path.join(root, "boot/efi/EFI/xenserver/grub.cfg"))
++        elif os.path.exists(alma_efi) and not cls._isConfigfileStub(alma_efi):
++            # XCP-ng 9 (EL10) UEFI: the installer writes the real configuration
++            # on the ESP. Once grub2-common's %posttrans has turned it into a
++            # stub, the configuration lives in boot/grub2/grub.cfg (below).
++            return cls.readGrub2(alma_efi)
+         elif os.path.exists(os.path.join(root, "boot/grub/grub.cfg")):
+             return cls.readGrub2(os.path.join(root, "boot/grub/grub.cfg"))
+         elif os.path.exists(os.path.join(root, "boot/grub2/grub.cfg")):
+-- 
+2.55.0
+
