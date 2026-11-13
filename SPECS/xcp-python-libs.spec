@@ -30,6 +30,9 @@ BuildRequires: python3-devel python3-setuptools python3-pip
 
 %if 0%{?xenserver} >= 9
 BuildRequires: pyproject-rpm-macros
+%if 0%{?xcpng}
+BuildRequires: python3-wheel
+%endif
 %endif
 
 %description
@@ -100,6 +103,7 @@ cd tests
 %changelog
 * Fri Nov 13 2026 Yann Dirson <yann.dirson@vates.tech> - 3.0.11-1.2
 - Bracket XCP-ng changes using %xcpng macro
+- Explicitly build-require python3-wheel on v9
 
 * Wed May 20 2026 Philippe Coval <philippe.coval@vates.tech> - 3.0.11-1.1
 - Rebase on 3.0.11-1
