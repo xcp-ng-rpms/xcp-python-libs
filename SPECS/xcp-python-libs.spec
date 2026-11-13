@@ -13,16 +13,19 @@ Source0: xcp-python-libs-3.0.11.tar.gz
 Patch0: 0001-Remove-setuptools_scm.patch
 %define __python python3
 
-# XCP-ng
+%if 0%{?xcpng}
 # This repo is the upstream for updategrub.py, for now
 Source1: updategrub.py
+%endif
 
 License: GPL
 
 Group: Applications/System
 BuildArch: noarch
 
+%if ! 0%{?xcpng}
 Obsoletes: xcp-python-libs-incloudsphere
+%endif
 BuildRequires: python3-devel python3-setuptools python3-pip
 
 %if 0%{?xenserver} >= 9
@@ -37,6 +40,9 @@ Summary: Common XCP-ng Python classes for Python3
 # See https://github.com/xenserver/python-libs/blob/master/pyproject.toml:
 Requires: python3-six
 Requires: biosdevname
+%if ! 0%{?xcpng}
+Requires: xenserver-release >= 8.3.60-5
+%endif
 %description -n python3-xcp-libs
 Common XenServer Python classes for Python3
 
@@ -65,11 +71,13 @@ sed -i "s/dynamic *= *\[\"version\"\]/version = \"%{version}\"/g" pyproject.toml
 %pyproject_install xcp
 %endif
 
+%if 0%{?xcpng}
 install -m 0775 -d %{buildroot}/opt/xensource/bin
 install -m 0775 %{SOURCE1} %{buildroot}/opt/xensource/bin/updategrub.py
 # compat symlink
 mkdir -p %{buildroot}/usr/lib/python2.7/site-packages/xcp
 ln -sr %{buildroot}/opt/xensource/bin/updategrub.py %{buildroot}/usr/lib/python2.7/site-packages/xcp/updategrub.py
+%endif
 
 %check
 %if %{with test}
@@ -84,10 +92,15 @@ cd tests
 %defattr(-,root,root)
 %{python3_sitelib}/python_libs-*
 %{python3_sitelib}/xcp
+%if 0%{?xcpng}
 /opt/xensource/bin/updategrub.py
 /usr/lib/python2.7/site-packages/xcp/updategrub.py
+%endif
 
 %changelog
+* Fri Nov 13 2026 Yann Dirson <yann.dirson@vates.tech> - 3.0.11-1.2
+- Bracket XCP-ng changes using %xcpng macro
+
 * Wed May 20 2026 Philippe Coval <philippe.coval@vates.tech> - 3.0.11-1.1
 - Rebase on 3.0.11-1
 - *** Upstream changelog ***
